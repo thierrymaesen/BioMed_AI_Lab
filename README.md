@@ -1,6 +1,7 @@
 <div align="center">
 
 # 🔬 BioMed AI Lab
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://biomed-ai-lab.streamlit.app/)
 
 ### Analyse & Segmentation Cellulaire Hybride
 
@@ -17,6 +18,7 @@
 Elle est conçue pour assister les technologues de laboratoire médical dans l'analyse morphologique d'imagerie cellulaire (frottis sanguins, coupes tissulaires) en combinant **l'Intelligence Artificielle** et la **Computer Vision** classique.
 
 [🇬🇧 English Version](#-biomed-ai-lab-1)
+
 
 </div>
 
@@ -157,6 +159,7 @@ Le projet est fonctionnel, mais plusieurs pistes d'amélioration sont envisageab
 <div align="center">
 
 # 🔬 BioMed AI Lab
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://biomed-ai-lab.streamlit.app/)
 
 ### Hybrid Cell Analysis & Segmentation
 
