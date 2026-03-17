@@ -1,75 +1,102 @@
-# 🔬 BioMed AI Lab : Analyse & Segmentation Cellulaire Hybride
+🔬 BioMed AI Lab : Analyse & Segmentation Cellulaire Hybride
+Une application web locale (Open-Source) développée en Python et Streamlit. Elle est conçue pour assister les technologues de laboratoire médical dans l'analyse morphologique d'imagerie cellulaire (frottis sanguins, coupes tissulaires) en combinant l'Intelligence Artificielle et la Computer Vision classique.
 
-Une application web locale (Open-Source) Python/Streamlit conçue pour assister les technologues de laboratoire dans l'analyse morphologique d'imagerie cellulaire (frottis, coupes). 
+🌟 L'Histoire du Développement : Pourquoi une approche hybride ?
+Au départ de ce projet, l'objectif était de créer un modèle de Deep Learning classique capable de "deviner" si une cellule était malade ou saine.
 
-![Aperçu du projet](https://via.placeholder.com/800x400.png?text=BioMed+AI+Lab+-+Interface+Streamlit) *(Ajoutez une capture d'écran de votre interface ici)*
+Le problème fondamental de l'imagerie médicale :
+Nous nous sommes heurtés au problème des "faux-positifs". Une IA entraînée sur un dataset limité a tendance à sur-réagir au "bruit" inhérent à la microscopie (poussière sur l'objectif, variation de la lumière halogène, artefacts de coloration). Le taux d'erreur de diagnostic était trop élevé pour être fiable en laboratoire.
 
-## 🌟 Pourquoi ce projet ? (L'Histoire du Développement)
+La Solution Hybride implémentée :
+Plutôt que de demander à l'IA de poser un diagnostic risqué, nous avons divisé le travail en deux moteurs distincts pour garantir une fiabilité à 100% :
 
-Au départ, l'objectif était de créer une Intelligence Artificielle classique qui "devine" si une cellule est malade ou saine. 
-**Nous nous sommes heurtés à un mur majeur de l'imagerie médicale :** le manque de données parfaites et les faux-positifs. Une IA entraînée sur un petit dataset a tendance à sur-réagir à la moindre poussière ou variation de lumière du microscope.
+L'IA "Localisatrice" (Machine Learning Non-Supervisé) :
+L'algorithme de K-Means Clustering cartographie l'image à la volée. Il comprend la structure de l'image et sépare intelligemment la lumière de fond du microscope de la véritable matière biologique (cytoplasme et noyau). Il n'a besoin d'aucun entraînement préalable !
 
-**La Solution Hybride :**
-Plutôt que de demander à l'IA de faire un *diagnostic* risqué, nous utilisons l'IA pour faire de la *segmentation* (comprendre l'image), et des mathématiques déterministes pour faire la *détection*.
-1. **L'IA (Machine Learning Non-Supervisé) :** L'algorithme **K-Means Clustering** cartographie l'image à la volée. Il sépare intelligemment la lumière du microscope de la matière biologique.
-2. **Computer Vision (Algorithmique pure) :** Un filtre topographique (Sobel) scanne ensuite *uniquement* la zone biologique définie par l'IA pour calculer la densité des anomalies de texture (déchirures, vacuoles).
-3. **Le Technologue (L'Humain) :** Il calibre l'outil selon la réalité physique de son échantillon.
+La Computer Vision (Algorithmique déterministe) :
+Un filtre topographique (Sobel) prend le relais. Il scanne exclusivement la zone biologique détourée par l'IA pour y chercher des anomalies structurelles (déchirures de membrane, vacuoles, inclusions parasites) en calculant leur densité.
 
----
+L'Expertise Humaine :
+Le système ne remplace pas le technologue, il l'assiste. L'utilisateur garde le contrôle total via deux jauges de calibration en temps réel.
 
-## 🚀 Installation (100% Local)
+🚀 Guide d'Installation (100% Local et Sécurisé)
+Aucune donnée médicale, aucune image de patient ne quitte votre ordinateur. L'intégralité du traitement s'exécute localement sur votre machine.
 
-Aucune donnée médicale ne quitte votre ordinateur.
+Prérequis
+Avoir installé Python 3.8 (ou une version supérieure).
 
-```bash
-# 1. Cloner le projet
-git clone https://github.com/VOTRE_NOM/BioMed_AI_Lab.git
+Avoir installé Git.
+
+Procédure pas-à-pas
+Ouvrez votre terminal (ou invite de commande) et tapez successivement ces commandes :
+
+Cloner le projet sur votre ordinateur :
+git clone https://github.com/VOTRE_PSEUDO/BioMed_AI_Lab.git
 cd BioMed_AI_Lab
 
-# 2. Créer un environnement virtuel (recommandé)
+Créer un environnement virtuel (fortement recommandé) :
 python -m venv venv
-# Windows : venv\Scripts\activate
-# Mac/Linux : source venv/bin/activate
 
-# 3. Installer les dépendances
+Activer l'environnement virtuel :
+
+Sur Windows : venv\Scripts\activate
+
+Sur Mac / Linux : source venv/bin/activate
+
+Installer les dépendances requises :
 pip install -r requirements.txt
 
-# 4. Lancer le laboratoire virtuel
+Lancer le laboratoire virtuel :
 python -m streamlit run app.py
 
-👩‍🔬 Guide d'Utilisation et Protocole de Calibration
-Le paramétrage est le cœur du système. Une image saine avec 100 globules rouges possède naturellement des "bords" que la machine peut confondre avec des déchirures. Il est donc crucial d'établir une ligne de base (Baseline).
+Une page web s'ouvrira automatiquement dans votre navigateur !
 
-Étape 1 : Établir la ligne de base (Calibration)
-Insérez une image SAINE issue de votre lot d'analyse actuel.
+👩‍🔬 Manuel d'Utilisation & Protocole de Calibration
+Le paramétrage est le cœur du système.
+Une image saine contenant des dizaines de globules rouges possède naturellement des "bords" (les membranes des cellules) que la machine pourrait confondre avec des anomalies ou des déchirures. Il est donc indispensable d'établir une ligne de base (Baseline) propre à votre microscope avant toute analyse.
 
-Observez l'Image n°2 : vérifiez que l'IA a bien isolé les cellules (en noir) du fond lumineux.
+Étape 1 : Établir la ligne de base (Calibration initiale)
+Lancez l'application et insérez une image SAINE typique de votre lot d'analyse actuel.
 
-Observez le résultat : Le système va détecter les contours naturels de vos cellules saines. Par exemple, il peut afficher : "Perturbation mesurée : 22.8%".
+Observez l'Image n°2 générée par l'IA : vérifiez qu'elle a correctement isolé les cellules du fond lumineux.
 
-Réglez la jauge "Tolérance de surface (%)" juste au-dessus de cette valeur (ex: 23%).
+Observez le résultat textuel : Le système va détecter les contours naturels de vos cellules saines. Il affichera par exemple : "Niveau de perturbation mesuré : 22.8%".
 
-L'alerte passe au Vert 🟢. Votre microscope est calibré pour ce type d'échantillon !
+Le réglage clé : Ajustez la jauge "Tolérance de surface (%)" dans la barre latérale pour qu'elle soit juste au-dessus de cette valeur (par exemple : 23%).
 
-Étape 2 : Analyser les échantillons
-Insérez maintenant vos images à tester.
+L'alerte passe au Vert 🟢. Votre outil est désormais parfaitement calibré pour ignorer le "bruit normal" de ce type d'échantillon !
 
-Si une anomalie grave, une agglutination ou un parasite est présent, la densité de texture va bondir (ex: 35%) et dépasser votre tolérance de 23%.
+Étape 2 : Analyser les échantillons suspects
+Insérez maintenant les images de vos patients ou échantillons à tester.
 
-L'alerte passera au Rouge 🔴.
+Si une pathologie grave, une agglutination anormale ou un parasite est présent, la densité de texture de l'image va bondir.
 
-Étape 3 : Traquer les anomalies subtiles (Taches claires, vacuoles)
-Si vous cherchez des maladies très subtiles (ex: un cytoplasme très légèrement décoloré) :
+Le pourcentage dépassera votre tolérance fixée à 23%. L'alerte passera immédiatement au Rouge 🔴 et ciblera l'anomalie visuellement sur l'Image n°3.
 
-Baissez la jauge "Sensibilité aux contrastes" (vers 30 ou 40).
+Étape 3 : Traquer les anomalies subtiles (Taches claires, vacuoles fines)
+Si vous cherchez des pathologies structurelles très peu visibles à l'œil nu (comme un cytoplasme très légèrement décoloré) :
 
-L'algorithme deviendra beaucoup plus "pointilleux" et affichera les moindres variations de gris sur l'Image n°3.
+Baissez la première jauge "Sensibilité aux contrastes" (vers 30 ou 40).
 
-🧠 Roadmap & Idées pour le futur
- Auto-Calibration par IA : Implémentation d'un algorithme (ex: méthode d'Otsu) pour que le système propose automatiquement les meilleures valeurs de jauges en analysant l'histogramme de l'image.
+L'algorithme de Sobel deviendra beaucoup plus sensible et pointilleux. Il affichera la moindre variation de gris ou de texture sur l'Image n°3, vous permettant de repérer l'invisible.
 
- Export des rapports au format PDF.
+🛠️ Stack Technique
+Ce projet repose sur des bibliothèques standards et éprouvées de l'écosystème Python :
 
- Support des images DICOM.
+Streamlit : Création de l'interface web interactive et réactive.
 
-Projet créé pour explorer la symbiose entre le Machine Learning, la Computer Vision et l'expertise médicale humaine.
+OpenCV (cv2) : Bibliothèque majeure de Computer Vision utilisée pour le filtre de Sobel et l'extraction des contours.
+
+NumPy : Moteur mathématique de calcul matriciel gérant l'algorithme d'Intelligence Artificielle (K-Means Clustering).
+
+Pillow (PIL) : Traitement et conversion des images uploadées par l'utilisateur.
+
+🧠 Roadmap & Idées de Développement Futur
+Le projet est fonctionnel, mais plusieurs pistes d'amélioration sont envisageables pour une future "Version 2.0" :
+
+ Auto-Calibration par IA : Intégration de la méthode de seuillage d'Otsu pour que le système analyse l'histogramme de l'image et pré-règle automatiquement les deux jauges de calibration de manière optimale.
+
+ Export PDF : Création d'un bouton pour exporter un "Rapport d'analyse de laboratoire" complet en format PDF (incluant les 3 images et les pourcentages mesurés).
+
+ Support Médical Standard : Ajout de la bibliothèque pydicom pour permettre la lecture directe des fichiers d'imagerie médicale bruts au format .dcm (DICOM).
+
