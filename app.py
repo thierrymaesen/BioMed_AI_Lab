@@ -20,6 +20,10 @@ Combien de "bruit" (bordures normales des globules) tolérez-vous avant de sonne
 """)
 tolerance_pourcentage = st.sidebar.slider("Tolérance de surface (%)", min_value=1, max_value=25, value=5, step=1)
 
+st.sidebar.markdown("---")
+st.sidebar.markdown("👨‍💻 **Créé par Thierry Maesen**")
+st.sidebar.markdown("[📂 Code Source sur GitHub](https://github.com/thierrymaesen/BioMed_AI_Lab)")
+
 # --- EN-TÊTE PRINCIPAL ---
 st.title("🔬 BioMed AI : Analyse & Segmentation Cellulaire")
 st.markdown("**Outil d'assistance au tri.** L'IA isole la matière biologique de la lumière du microscope, puis analyse la densité des anomalies structurelles.")
@@ -105,3 +109,6 @@ if fichier_upload is not None:
         st.image(vue_ia, caption="2. Cartographie IA (Toute la cellule)", use_container_width=True)
     with col3:
         st.image(img_resultat, caption="3. Détection des textures anormales", use_container_width=True)
+        
+        st.markdown("---")
+st.markdown("<div style='text-align: center; color: gray;'><small>BioMed AI Lab - Développé par Thierry Maesen | <a href='https://github.com/thierrymaesen/BioMed_AI_Lab' target='_blank'>Voir le code sur GitHub</a></small></div>", unsafe_allow_html=True)
