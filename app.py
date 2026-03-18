@@ -5,6 +5,7 @@ import streamlit as st
 
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib import colors
+# On importe Image sous le nom RLImage pour éviter le conflit avec PIL
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as RLImage, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
@@ -15,14 +16,12 @@ from PIL import Image
 st.set_page_config(page_title="BioMed AI Lab", page_icon="🔬", layout="wide")
 
 # --- SYSTÈME DE MÉMOIRE (Session State) ---
-# Ce sont nos deux variables maîtresses (la source de vérité)
 if 'sensibilite_actuelle' not in st.session_state:
     st.session_state.sensibilite_actuelle = 50
 if 'tolerance_actuelle' not in st.session_state:
     st.session_state.tolerance_actuelle = 5
 if 'is_calibrated' not in st.session_state:
     st.session_state.is_calibrated = False
-
 
 # --- MOTEUR MATHÉMATIQUE D'AUTO-CALIBRATION ---
 def auto_calibration(image_cv2, masque_ia):
@@ -38,7 +37,6 @@ def auto_calibration(image_cv2, masque_ia):
     
     if len(pixels_in_mask) > 0:
         seuil_calcule = int(np.mean(pixels_in_mask) + np.std(pixels_in_mask))
-        # On arrondit pour que ça tombe sur un multiple de 5 (comme la jauge)
         seuil_calcule = max(10, min(int(round(seuil_calcule / 5.0) * 5), 200))
     else:
         seuil_calcule = 50
@@ -56,7 +54,6 @@ def auto_calibration(image_cv2, masque_ia):
     
     return seuil_calcule, tolerance_calculee
 
-
 # --- BARRE LATÉRALE DE RÉGLAGE ---
 st.sidebar.header("⚙️ Calibration du Laboratoire")
 
@@ -68,39 +65,29 @@ else:
 st.sidebar.info("💡 **Note Importante :** Si vous changez de microscope ou modifiez l'éclairage, refaites une Auto-Calibration avec une image saine de référence.")
 st.sidebar.markdown("---")
 
-# Les jauges utilisent 'value' pour lire la mémoire, et renvoient directement leur nouvelle valeur dans une variable locale
 val_sensibilite = st.sidebar.slider(
-    "Sensibilité aux contrastes", 
-    min_value=10, max_value=200, 
-    value=st.session_state.sensibilite_actuelle, 
-    step=5
+    "Sensibilité aux contrastes", min_value=10, max_value=200, value=st.session_state.sensibilite_actuelle, step=5
 )
 
 val_tolerance = st.sidebar.slider(
-    "Tolérance de surface (%)", 
-    min_value=1, max_value=50, 
-    value=st.session_state.tolerance_actuelle, 
-    step=1
+    "Tolérance de surface (%)", min_value=1, max_value=50, value=st.session_state.tolerance_actuelle, step=1
 )
 
-# Si l'utilisateur a bougé la jauge manuellement, on met à jour la mémoire maîtresse
 if val_sensibilite != st.session_state.sensibilite_actuelle or val_tolerance != st.session_state.tolerance_actuelle:
     st.session_state.sensibilite_actuelle = val_sensibilite
     st.session_state.tolerance_actuelle = val_tolerance
-    st.session_state.is_calibrated = False # S'il touche manuellement, ce n'est plus "auto-calibré"
+    st.session_state.is_calibrated = False 
     st.rerun()
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("👨‍💻 **Créé par Thierry Maesen**")
 st.sidebar.markdown("[📂 Code Source sur GitHub](https://github.com/thierrymaesen/BioMed_AI_Lab)")
 
-
 # --- EN-TÊTE PRINCIPAL ---
 st.title("🔬 BioMed AI : Analyse & Segmentation Cellulaire")
 st.markdown("**Outil d'assistance au tri.** L'IA isole la matière biologique, puis analyse la densité des anomalies structurelles.")
 
-
-# --- MOTEUR 1 : INTELLIGENCE ARTIFICIELLE (Segmentation K-Means) ---
+# --- MOTEUR 1 : INTELLIGENCE ARTIFICIELLE ---
 def segmenter_avec_ia(image_cv2):
     pixels = image_cv2.reshape((-1, 3)) if len(image_cv2.shape) == 3 else image_cv2.reshape((-1, 1))
     pixels = np.float32(pixels)
@@ -114,7 +101,7 @@ def segmenter_avec_ia(image_cv2):
     masque_ia = masque_ia.reshape((image_cv2.shape[0], image_cv2.shape[1]))
     return image_segmentee_ia, masque_ia
 
-# --- MOTEUR 2 : COMPUTER VISION (Analyse de densité) ---
+# --- MOTEUR 2 : COMPUTER VISION ---
 def analyser_cellule(image_cv2, masque_ia, seuil_sobel):
     gris = cv2.cvtColor(image_cv2, cv2.COLOR_BGR2GRAY) if len(image_cv2.shape) == 3 else image_cv2.copy()
     gris_lisse = cv2.GaussianBlur(gris, (5, 5), 0)
@@ -130,50 +117,8 @@ def analyser_cellule(image_cv2, masque_ia, seuil_sobel):
     return densite_anomalie, gris, anomalies_cibles
 
 
-# --- INTERFACE ---
-fichier_upload = st.file_uploader("Insérez une image issue du microscope :", type=["png", "jpg", "jpeg"])
-
-if fichier_upload is not None:
-    image_pil = Image.open(fichier_upload)
-    img_cv2 = np.array(image_pil)
-    
-    vue_ia, masque_ia = segmenter_avec_ia(img_cv2)
-    
-    # Bouton d'auto-calibration
-    if st.button("🎯 Prendre cette image comme référence saine (Auto-Calibrer)"):
-        nouveau_seuil, nouvelle_tol = auto_calibration(img_cv2, masque_ia)
-        # On met à jour nos variables maîtresses
-        st.session_state.sensibilite_actuelle = nouveau_seuil
-        st.session_state.tolerance_actuelle = nouvelle_tol
-        st.session_state.is_calibrated = True
-        # On recharge la page : les jauges liront ces nouvelles variables dans leur paramètre "value="
-        st.rerun()
-    
-    # Analyse standard avec les paramètres en mémoire
-    densite, vue_grise, vue_alerte = analyser_cellule(img_cv2, masque_ia, st.session_state.sensibilite_actuelle)
-    
-    st.markdown("---")
-    if densite <= st.session_state.tolerance_actuelle:
-        st.success(f"🟢 NORMAL : Biologie conforme. (Perturbation : {densite:.1f}% / Tolérance de la machine : {st.session_state.tolerance_actuelle}%)")
-    else:
-        st.error(f"🔴 ANOMALIE DÉTECTÉE ! Le niveau de perturbation ({densite:.1f}%) dépasse la tolérance de la machine ({st.session_state.tolerance_actuelle}%) calibrée.")
-        
-    img_resultat = cv2.cvtColor(vue_grise, cv2.COLOR_GRAY2BGR)
-    img_resultat[vue_alerte > 0] = [255, 0, 0]
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.image(image_pil, caption="1. Image originale", use_container_width=True)
-    with col2:
-        st.image(vue_ia, caption="2. Cartographie IA", use_container_width=True)
-    with col3:
-        st.image(img_resultat, caption="3. Détection des anomalies", use_container_width=True)
-
-
 # --- GÉNÉRATION DU RAPPORT PDF ---
 def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tolerance, is_calibrated):
-    """Génère un rapport PDF professionnel avec les analyses et images."""
-    
     img_orig_pil = Image.fromarray(image_originale)
     img_ia_pil = Image.fromarray(image_ia)
     img_result_pil = Image.fromarray(image_resultat)
@@ -261,9 +206,9 @@ def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tole
     img_table = Table([
         ["Image Originale", "Cartographie IA", "Détection Anomalies"],
         [
-            Image(img_orig_bytes, width=img_width, height=img_height),
-            Image(img_ia_bytes, width=img_width, height=img_height),
-            Image(img_result_bytes, width=img_width, height=img_height),
+            RLImage(img_orig_bytes, width=img_width, height=img_height),
+            RLImage(img_ia_bytes, width=img_width, height=img_height),
+            RLImage(img_result_bytes, width=img_width, height=img_height),
         ]
     ], colWidths=[2*inch, 2*inch, 2*inch])
     img_table.setStyle(TableStyle([
@@ -284,8 +229,41 @@ def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tole
     return pdf_buffer
 
 
-# ATTENTION : Il faut que ce bloc "if fichier_upload is not None:" soit bien au même niveau d'indentation que le début du fichier
+# --- INTERFACE ---
+fichier_upload = st.file_uploader("Insérez une image issue du microscope :", type=["png", "jpg", "jpeg"])
+
 if fichier_upload is not None:
+    image_pil = Image.open(fichier_upload)
+    img_cv2 = np.array(image_pil)
+    
+    vue_ia, masque_ia = segmenter_avec_ia(img_cv2)
+    
+    if st.button("🎯 Prendre cette image comme référence saine (Auto-Calibrer)"):
+        nouveau_seuil, nouvelle_tol = auto_calibration(img_cv2, masque_ia)
+        st.session_state.sensibilite_actuelle = nouveau_seuil
+        st.session_state.tolerance_actuelle = nouvelle_tol
+        st.session_state.is_calibrated = True
+        st.rerun()
+    
+    densite, vue_grise, vue_alerte = analyser_cellule(img_cv2, masque_ia, st.session_state.sensibilite_actuelle)
+    
+    st.markdown("---")
+    if densite <= st.session_state.tolerance_actuelle:
+        st.success(f"🟢 NORMAL : Biologie conforme. (Perturbation : {densite:.1f}% / Tolérance de la machine : {st.session_state.tolerance_actuelle}%)")
+    else:
+        st.error(f"🔴 ANOMALIE DÉTECTÉE ! Le niveau de perturbation ({densite:.1f}%) dépasse la tolérance de la machine ({st.session_state.tolerance_actuelle}%) calibrée.")
+        
+    img_resultat = cv2.cvtColor(vue_grise, cv2.COLOR_GRAY2BGR)
+    img_resultat[vue_alerte > 0] = [255, 0, 0]
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.image(image_pil, caption="1. Image originale", use_container_width=True)
+    with col2:
+        st.image(vue_ia, caption="2. Cartographie IA", use_container_width=True)
+    with col3:
+        st.image(img_resultat, caption="3. Détection des anomalies", use_container_width=True)
+        
     # --- BOUTON DE TÉLÉCHARGEMENT PDF ---
     st.markdown("---")
     col_pdf1, col_pdf2, col_pdf3 = st.columns([1, 2, 1])
