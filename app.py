@@ -161,7 +161,7 @@ if fichier_upload is not None:
     img_resultat = cv2.cvtColor(vue_grise, cv2.COLOR_GRAY2BGR)
     img_resultat[vue_alerte > 0] = [255, 0, 0]
     
-        col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
     with col1:
         st.image(image_pil, caption="1. Image originale", use_container_width=True)
     with col2:
