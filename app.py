@@ -68,8 +68,28 @@ st.sidebar.info("💡 **Note Importante :** Si vous changez de microscope ou mod
 st.sidebar.markdown("---")
 
 # Les jauges utilisent la valeur interne comme valeur par défaut, et la mettent à jour quand on les bouge
-st.sidebar.slider("Sensibilité aux contrastes", min_value=10, max_value=200, value=st.session_state._sensibilite, key='widget_sensibilite', on_change=update_sensibilite, step=5)
-st.sidebar.slider("Tolérance de surface (%)", min_value=1, max_value=50, value=st.session_state._tolerance, key='widget_tolerance', on_change=update_tolerance, step=1)
+# --- NOUVEAU CODE CORRIGÉ ---
+# On synchronise explicitement la valeur affichée du widget avec la mémoire calculée
+if 'widget_sensibilite' not in st.session_state:
+    st.session_state.widget_sensibilite = st.session_state._sensibilite
+if 'widget_tolerance' not in st.session_state:
+    st.session_state.widget_tolerance = st.session_state._tolerance
+
+st.sidebar.slider(
+    "Sensibilité aux contrastes", 
+    min_value=10, max_value=200, 
+    key='widget_sensibilite', 
+    on_change=update_sensibilite, 
+    step=5
+)
+st.sidebar.slider(
+    "Tolérance de surface (%)", 
+    min_value=1, max_value=50, 
+    key='widget_tolerance', 
+    on_change=update_tolerance, 
+    step=1
+)
+
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("👨‍💻 **Créé par Thierry Maesen**")
@@ -126,6 +146,9 @@ if fichier_upload is not None:
         st.session_state._sensibilite = nouveau_seuil
         st.session_state._tolerance = nouvelle_tol
         st.session_state.is_calibrated = True
+        # NOUVEAU : On force les jauges visuelles à s'aligner sur les nouvelles valeurs !
+        st.session_state.widget_sensibilite = nouveau_seuil
+        st.session_state.widget_tolerance = nouvelle_tol
         st.rerun() # Recharge la page pour que les jauges affichent les nouvelles valeurs
     
     # Analyse standard avec les paramètres en mémoire
