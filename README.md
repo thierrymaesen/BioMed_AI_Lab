@@ -44,6 +44,9 @@ L'algorithme de **K-Means Clustering** cartographie l'image à la volée. Il com
 
 Un filtre topographique (**Sobel**) prend le relais. Il scanne exclusivement la zone biologique détourée par l'IA pour y chercher des anomalies structurelles (déchirures de membrane, vacuoles, inclusions parasites) en calculant leur densité.
 
+#### 🎯 L'Auto-Calibration Intelligente
+L'outil intègre un algorithme d'analyse statistique de la rugosité (Moyenne + Écart-type). En un clic sur une image saine, la machine calcule l'intensité des textures naturelles et ajuste automatiquement ses jauges de tolérance pour le microscope utilisé.
+
 #### 👨‍🔬 L'Expertise Humaine
 
 Le système ne remplace pas le technologue, il l'**assiste**. L'utilisateur garde le contrôle total via deux jauges de calibration en temps réel.
@@ -107,14 +110,15 @@ python -m streamlit run app.py
 
 Le paramétrage est le cœur du système. Une image saine contenant des dizaines de globules rouges possède naturellement des "bords" (les membranes des cellules) que la machine pourrait confondre avec des anomalies ou des déchirures. Il est donc indispensable d'établir une **ligne de base (Baseline)** propre à votre microscope avant toute analyse.
 
-### Étape 1 : Établir la ligne de base (Calibration initiale)
+### Étape 1 : Établir la ligne de base (Auto-Calibration)
+Chaque microscope et chaque type d'éclairage génère un "bruit" visuel différent (les membranes des cellules).
+Il est donc indispensable d'établir une ligne de base avant toute analyse :
 
-1. Lancez l'application et insérez une **image SAINE** typique de votre lot d'analyse actuel.
+1. Lancez l'application et insérez une image **SAINE** typique de votre lot actuel.
 2. Observez l'**Image n°2** générée par l'IA : vérifiez qu'elle a correctement isolé les cellules du fond lumineux.
-3. Observez le **résultat textuel** : Le système va détecter les contours naturels de vos cellules saines. Il affichera par exemple : *"Niveau de perturbation mesuré : 22.8%"*.
-4. **Le réglage clé :** Ajustez la jauge **"Tolérance de surface (%)"** dans la barre latérale pour qu'elle soit juste au-dessus de cette valeur (par exemple : **23%**).
-
-> 🟢 L'alerte passe au **Vert**. Votre outil est désormais parfaitement calibré pour ignorer le "bruit normal" de ce type d'échantillon !
+3. Cliquez sur le bouton magique **"🎯 Prendre cette image comme référence saine (Auto-Calibrer)"**.
+4. Le système va analyser la texture normale, ajuster visuellement les jauges de tolérance dans la barre latérale, et afficher le statut **"✅ Appareil Calibré Automatiquement"**.
+5. *Note : Tant que vous ne changez pas les réglages physiques de votre microscope, vous pouvez enchaîner l'analyse de dizaines d'images avec ces réglages mémorisés.*
 
 ### Étape 2 : Analyser les échantillons suspects
 
@@ -150,7 +154,6 @@ Ce projet repose sur des bibliothèques standards et éprouvées de l'écosystè
 
 Le projet est fonctionnel, mais plusieurs pistes d'amélioration sont envisageables pour une future **"Version 2.0"** :
 
-- [ ] **Auto-Calibration par IA** — Intégration de la méthode de seuillage d'Otsu pour que le système analyse l'histogramme de l'image et pré-règle automatiquement les deux jauges de calibration de manière optimale.
 - [ ] **Export PDF** — Création d'un bouton pour exporter un "Rapport d'analyse de laboratoire" complet en format PDF (incluant les 3 images et les pourcentages mesurés).
 - [ ] **Support Médical Standard** — Ajout de la bibliothèque `pydicom` pour permettre la lecture directe des fichiers d'imagerie médicale bruts au format `.dcm` (DICOM).
 
@@ -200,6 +203,9 @@ The **K-Means Clustering** algorithm maps the image on the fly. It understands t
 #### 🔍 Computer Vision (Deterministic Algorithm)
 
 A topographic filter (**Sobel**) takes over. It exclusively scans the biological zone outlined by the AI to search for structural anomalies (membrane tears, vacuoles, parasitic inclusions) by calculating their density.
+
+#### 🎯 Smart Auto-Calibration
+The tool features a statistical roughness analysis algorithm (Mean + Standard Deviation). With a single click on a healthy reference image, the machine calculates the intensity of natural textures and automatically adjusts its tolerance sliders for the specific microscope being used.
 
 #### 👨‍🔬 Human Expertise
 
@@ -264,14 +270,14 @@ python -m streamlit run app.py
 
 Calibration is the heart of the system. A healthy image containing dozens of red blood cells naturally has "edges" (cell membranes) that the machine could mistake for anomalies or tears. It is therefore essential to establish a **baseline** specific to your microscope before any analysis.
 
-### Step 1: Establish the Baseline (Initial Calibration)
+### Step 1: Establish the Baseline (Auto-Calibration)
+Every microscope and lighting setup generates different visual "noise" (cell membranes). It is therefore crucial to establish a baseline before any analysis:
 
-1. Launch the application and insert a **HEALTHY image** typical of your current analysis batch.
-2. Observe **Image #2** generated by the AI: verify that it has correctly isolated the cells from the light background.
-3. Observe the **text result**: The system will detect the natural contours of your healthy cells. It will display, for example: *"Measured disturbance level: 22.8%"*.
-4. **The key setting:** Adjust the **"Surface Tolerance (%)"** gauge in the sidebar so it is just above this value (e.g., **23%**).
-
-> 🟢 The alert turns **Green**. Your tool is now perfectly calibrated to ignore the "normal noise" of this sample type!
+1. Launch the app and upload a typical **HEALTHY** image from your current batch.
+2. Look at **Image #2** generated by the AI: verify that it has correctly isolated the cells from the light background.
+3. Click the magic button **"🎯 Take this image as healthy reference (Auto-Calibrate)"**.
+4. The system will analyze the normal texture, visually adjust the tolerance sliders in the sidebar, and display the status **"✅ Device Automatically Calibrated"**.
+5. *Note: As long as you don't change the physical settings of your microscope, you can analyze dozens of subsequent images with these saved settings.*
 
 ### Step 2: Analyze Suspect Samples
 
@@ -307,6 +313,5 @@ This project relies on standard and proven libraries from the Python ecosystem:
 
 The project is functional, but several improvement paths are being considered for a future **"Version 2.0"**:
 
-- [ ] **AI Auto-Calibration** — Integration of Otsu's thresholding method so the system analyzes the image histogram and automatically pre-sets the two calibration gauges optimally.
 - [ ] **PDF Export** — Creation of a button to export a complete "Laboratory Analysis Report" in PDF format (including all 3 images and measured percentages).
 - [ ] **Medical Standard Support** — Addition of the `pydicom` library to enable direct reading of raw medical imaging files in `.dcm` (DICOM) format.
