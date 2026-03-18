@@ -161,23 +161,23 @@ if fichier_upload is not None:
     img_resultat = cv2.cvtColor(vue_grise, cv2.COLOR_GRAY2BGR)
     img_resultat[vue_alerte > 0] = [255, 0, 0]
     
-    col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns(3)
     with col1:
         st.image(image_pil, caption="1. Image originale", use_container_width=True)
     with col2:
         st.image(vue_ia, caption="2. Cartographie IA", use_container_width=True)
     with col3:
         st.image(img_resultat, caption="3. Détection des anomalies", use_container_width=True)
-    # --- GÉNÉRATION DU RAPPORT PDF ---
+
+
+# --- GÉNÉRATION DU RAPPORT PDF ---
 def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tolerance, is_calibrated):
     """Génère un rapport PDF professionnel avec les analyses et images."""
     
-    # Convertir les images OpenCV en format compatible Streamlit
     img_orig_pil = Image.fromarray(image_originale)
     img_ia_pil = Image.fromarray(image_ia)
     img_result_pil = Image.fromarray(image_resultat)
     
-    # Sauvegarder les images temporairement en BytesIO
     img_orig_bytes = BytesIO()
     img_ia_bytes = BytesIO()
     img_result_bytes = BytesIO()
@@ -190,34 +190,24 @@ def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tole
     img_ia_bytes.seek(0)
     img_result_bytes.seek(0)
     
-    # Créer le document PDF
     pdf_buffer = BytesIO()
     doc = SimpleDocTemplate(pdf_buffer, pagesize=A4, topMargin=0.5*inch, bottomMargin=0.5*inch)
     
     styles = getSampleStyleSheet()
     story = []
     
-    # --- EN-TÊTE ---
     title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=24,
-        textColor=colors.HexColor('#1f2121'),
-        spaceAfter=6,
-        alignment=1  # Centré
+        'CustomTitle', parent=styles['Heading1'], fontSize=24,
+        textColor=colors.HexColor('#1f2121'), spaceAfter=6, alignment=1
     )
     story.append(Paragraph("🔬 BioMed AI Lab", title_style))
     story.append(Paragraph("Rapport d'Analyse Cellulaire", styles['Heading2']))
     story.append(Spacer(1, 0.2*inch))
     
-    # --- DATE ET STATUT ---
     date_str = datetime.now().strftime("%d/%m/%Y à %H:%M:%S")
     status = "✅ Calibration Automatique" if is_calibrated else "⚠️ Calibration Manuelle"
     
-    info_data = [
-        ["Date d'analyse :", date_str],
-        ["Statut de calibration :", status],
-    ]
+    info_data = [["Date d'analyse :", date_str], ["Statut de calibration :", status]]
     info_table = Table(info_data, colWidths=[2*inch, 3.5*inch])
     info_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e8e8e8')),
@@ -231,10 +221,8 @@ def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tole
     story.append(info_table)
     story.append(Spacer(1, 0.3*inch))
     
-    # --- RÉSULTATS DE L'ANALYSE ---
     story.append(Paragraph("Résultats de l'Analyse", styles['Heading2']))
     
-    # Couleur du diagnostic
     if densite <= tolerance:
         diagnostic = "🟢 NORMAL"
         diagnostic_color = colors.HexColor('#22c55e')
@@ -264,15 +252,12 @@ def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tole
     story.append(result_table)
     story.append(Spacer(1, 0.3*inch))
     
-    # --- IMAGES ---
     story.append(PageBreak())
     story.append(Paragraph("Visualisation de l'Analyse", styles['Heading2']))
     story.append(Spacer(1, 0.2*inch))
     
-    # Redimensionner les images pour le PDF
     img_width = 1.8*inch
     img_height = 1.35*inch
-    
     img_table = Table([
         ["Image Originale", "Cartographie IA", "Détection Anomalies"],
         [
@@ -281,7 +266,6 @@ def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tole
             Image(img_result_bytes, width=img_width, height=img_height),
         ]
     ], colWidths=[2*inch, 2*inch, 2*inch])
-    
     img_table.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -292,16 +276,16 @@ def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tole
     ]))
     story.append(img_table)
     
-    # --- FOOTER ---
     story.append(Spacer(1, 0.3*inch))
-    story.append(Paragraph("Rapport généré par BioMed AI Lab | <a href='https://github.com/thierrymaesen/BioMed_AI_Lab'>GitHub</a>", styles['Normal']))
+    story.append(Paragraph("Rapport généré par BioMed AI Lab | GitHub: thierrymaesen", styles['Normal']))
     
-    # Générer le PDF
     doc.build(story)
     pdf_buffer.seek(0)
-    
     return pdf_buffer
 
+
+# ATTENTION : Il faut que ce bloc "if fichier_upload is not None:" soit bien au même niveau d'indentation que le début du fichier
+if fichier_upload is not None:
     # --- BOUTON DE TÉLÉCHARGEMENT PDF ---
     st.markdown("---")
     col_pdf1, col_pdf2, col_pdf3 = st.columns([1, 2, 1])
