@@ -7,20 +7,13 @@ from PIL import Image
 st.set_page_config(page_title="BioMed AI Lab", page_icon="🔬", layout="wide")
 
 # --- SYSTÈME DE MÉMOIRE (Session State) ---
-# On utilise des clés internes (_sensibilite) pour éviter le conflit avec les widgets
-if '_sensibilite' not in st.session_state:
-    st.session_state._sensibilite = 50
-if '_tolerance' not in st.session_state:
-    st.session_state._tolerance = 5
+# Ce sont nos deux variables maîtresses (la source de vérité)
+if 'sensibilite_actuelle' not in st.session_state:
+    st.session_state.sensibilite_actuelle = 50
+if 'tolerance_actuelle' not in st.session_state:
+    st.session_state.tolerance_actuelle = 5
 if 'is_calibrated' not in st.session_state:
     st.session_state.is_calibrated = False
-
-# Fonctions de mise à jour quand l'utilisateur touche manuellement les jauges
-def update_sensibilite():
-    st.session_state._sensibilite = st.session_state.widget_sensibilite
-    
-def update_tolerance():
-    st.session_state._tolerance = st.session_state.widget_tolerance
 
 
 # --- MOTEUR MATHÉMATIQUE D'AUTO-CALIBRATION ---
@@ -37,7 +30,8 @@ def auto_calibration(image_cv2, masque_ia):
     
     if len(pixels_in_mask) > 0:
         seuil_calcule = int(np.mean(pixels_in_mask) + np.std(pixels_in_mask))
-        seuil_calcule = max(10, min(seuil_calcule, 200))
+        # On arrondit pour que ça tombe sur un multiple de 5 (comme la jauge)
+        seuil_calcule = max(10, min(int(round(seuil_calcule / 5.0) * 5), 200))
     else:
         seuil_calcule = 50
         
@@ -64,32 +58,29 @@ else:
     st.sidebar.warning("⚠️ Non Calibré (Réglages par défaut ou manuels)")
 
 st.sidebar.info("💡 **Note Importante :** Si vous changez de microscope ou modifiez l'éclairage, refaites une Auto-Calibration avec une image saine de référence.")
-
 st.sidebar.markdown("---")
 
-# Les jauges utilisent la valeur interne comme valeur par défaut, et la mettent à jour quand on les bouge
-# --- NOUVEAU CODE CORRIGÉ ---
-# On synchronise explicitement la valeur affichée du widget avec la mémoire calculée
-if 'widget_sensibilite' not in st.session_state:
-    st.session_state.widget_sensibilite = st.session_state._sensibilite
-if 'widget_tolerance' not in st.session_state:
-    st.session_state.widget_tolerance = st.session_state._tolerance
-
-st.sidebar.slider(
+# Les jauges utilisent 'value' pour lire la mémoire, et renvoient directement leur nouvelle valeur dans une variable locale
+val_sensibilite = st.sidebar.slider(
     "Sensibilité aux contrastes", 
     min_value=10, max_value=200, 
-    key='widget_sensibilite', 
-    on_change=update_sensibilite, 
+    value=st.session_state.sensibilite_actuelle, 
     step=5
 )
-st.sidebar.slider(
+
+val_tolerance = st.sidebar.slider(
     "Tolérance de surface (%)", 
     min_value=1, max_value=50, 
-    key='widget_tolerance', 
-    on_change=update_tolerance, 
+    value=st.session_state.tolerance_actuelle, 
     step=1
 )
 
+# Si l'utilisateur a bougé la jauge manuellement, on met à jour la mémoire maîtresse
+if val_sensibilite != st.session_state.sensibilite_actuelle or val_tolerance != st.session_state.tolerance_actuelle:
+    st.session_state.sensibilite_actuelle = val_sensibilite
+    st.session_state.tolerance_actuelle = val_tolerance
+    st.session_state.is_calibrated = False # S'il touche manuellement, ce n'est plus "auto-calibré"
+    st.rerun()
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("👨‍💻 **Créé par Thierry Maesen**")
@@ -143,22 +134,21 @@ if fichier_upload is not None:
     # Bouton d'auto-calibration
     if st.button("🎯 Prendre cette image comme référence saine (Auto-Calibrer)"):
         nouveau_seuil, nouvelle_tol = auto_calibration(img_cv2, masque_ia)
-        st.session_state._sensibilite = nouveau_seuil
-        st.session_state._tolerance = nouvelle_tol
+        # On met à jour nos variables maîtresses
+        st.session_state.sensibilite_actuelle = nouveau_seuil
+        st.session_state.tolerance_actuelle = nouvelle_tol
         st.session_state.is_calibrated = True
-        # NOUVEAU : On force les jauges visuelles à s'aligner sur les nouvelles valeurs !
-        st.session_state.widget_sensibilite = nouveau_seuil
-        st.session_state.widget_tolerance = nouvelle_tol
-        st.rerun() # Recharge la page pour que les jauges affichent les nouvelles valeurs
+        # On recharge la page : les jauges liront ces nouvelles variables dans leur paramètre "value="
+        st.rerun()
     
     # Analyse standard avec les paramètres en mémoire
-    densite, vue_grise, vue_alerte = analyser_cellule(img_cv2, masque_ia, st.session_state._sensibilite)
+    densite, vue_grise, vue_alerte = analyser_cellule(img_cv2, masque_ia, st.session_state.sensibilite_actuelle)
     
     st.markdown("---")
-    if densite <= st.session_state._tolerance:
-        st.success(f"🟢 NORMAL : Biologie conforme. (Perturbation : {densite:.1f}% / Tolérance de la machine : {st.session_state._tolerance}%)")
+    if densite <= st.session_state.tolerance_actuelle:
+        st.success(f"🟢 NORMAL : Biologie conforme. (Perturbation : {densite:.1f}% / Tolérance de la machine : {st.session_state.tolerance_actuelle}%)")
     else:
-        st.error(f"🔴 ANOMALIE DÉTECTÉE ! Le niveau de perturbation ({densite:.1f}%) dépasse la tolérance de la machine ({st.session_state._tolerance}%).")
+        st.error(f"🔴 ANOMALIE DÉTECTÉE ! Le niveau de perturbation ({densite:.1f}%) dépasse la tolérance de la machine ({st.session_state.tolerance_actuelle}%) calibrée.")
         
     img_resultat = cv2.cvtColor(vue_grise, cv2.COLOR_GRAY2BGR)
     img_resultat[vue_alerte > 0] = [255, 0, 0]
