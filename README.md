@@ -47,6 +47,70 @@ Un filtre topographique (**Sobel**) prend le relais. Il scanne exclusivement la 
 #### 🎯 L'Auto-Calibration Intelligente
 L'outil intègre un algorithme d'analyse statistique de la rugosité (Moyenne + Écart-type). En un clic sur une image saine, la machine calcule l'intensité des textures naturelles et ajuste automatiquement ses jauges de tolérance pour le microscope utilisé.
 
+# 🆕 Nouvelles Fonctionnalités - Version 2.0
+
+## 📥 Téléchargement des Rapports en PDF
+
+### Description
+Génération automatique d'un **rapport d'analyse professionnel** au format PDF, téléchargeable directement depuis l'application.
+
+### Contenu du Rapport
+- **En-tête :** Logo et titre de l'analyse
+- **Métadonnées :** Date, heure, et statut de calibration
+- **Résultats :** 
+  - Diagnostic coloré (🟢 NORMAL ou 🔴 ANOMALIE DÉTECTÉE)
+  - Pourcentage de perturbation mesuré
+  - Tolérance définie par l'appareil
+- **Visualisations :** Les 3 images côte à côte
+  - Image originale
+  - Cartographie IA (segmentation K-Means)
+  - Détection des anomalies (filtre Sobel)
+
+### Utilisation
+1. Uploadez une image
+2. Configurez la calibration si nécessaire
+3. Cliquez sur le bouton **"📥 Télécharger le Rapport PDF"**
+4. Le fichier est généré et téléchargé automatiquement avec timestamp
+
+### Technologies
+- **Bibliothèque :** `reportlab` (open-source)
+- **Format :** PDF standard compatible avec tous les lecteurs
+
+---
+
+## 🏥 Support des Fichiers Médicaux DICOM (.dcm)
+
+### Description
+Lecture directe des **fichiers d'imagerie médicale bruts** au format DICOM, utilisés par les scanners (CT/IRM), les radiographies, et les microscopes électroniques numériques.
+
+### Format DICOM
+- **Extenstion :** `.dcm`
+- **Profondeur :** Généralement 12 ou 16 bits (vs 8 bits pour JPG/PNG)
+- **Standardisation :** Format médical international (DICOM = Digital Imaging and Communications in Medicine)
+
+### Utilisation
+1. Uploadez un fichier `.dcm` dans l'application
+2. L'application détecte automatiquement le format
+3. La matrice de pixels brute est extraite et normalisée (16-bit → 8-bit)
+4. Le reste de l'analyse fonctionne identiquement aux images JPG/PNG
+
+### Technologies
+- **Bibliothèque :** `pydicom` (open-source)
+- **Normalisation :** Conversion intelligente du dynamique brut vers 8 bits
+
+---
+
+## ✨ Points Forts de la V2.0
+
+| Fonctionnalité | Avant | Après |
+|---|---|---|
+| **Format d'entrée** | JPG, PNG seulement | JPG, PNG, **DICOM** |
+| **Export** | Pas d'export | **Rapport PDF professionnel** |
+| **Profondeur de l'image** | 8 bits | 8 bits, **12/16 bits (DICOM)** |
+| **Cas d'usage** | Prototype de lab | **Vrai outil médical** |
+
+
+
 #### 👨‍🔬 L'Expertise Humaine
 
 Le système ne remplace pas le technologue, il l'**assiste**. L'utilisateur garde le contrôle total via deux jauges de calibration en temps réel.
@@ -206,6 +270,70 @@ A topographic filter (**Sobel**) takes over. It exclusively scans the biological
 
 #### 🎯 Smart Auto-Calibration
 The tool features a statistical roughness analysis algorithm (Mean + Standard Deviation). With a single click on a healthy reference image, the machine calculates the intensity of natural textures and automatically adjusts its tolerance sliders for the specific microscope being used.
+
+# 🆕 New Features - Version 2.0
+
+## 📥 PDF Report Download
+
+### Description
+Automatic generation of a **professional analysis report** in PDF format, directly downloadable from the application.
+
+### Report Content
+- **Header:** Logo and analysis title
+- **Metadata:** Date, time, and calibration status
+- **Results:** 
+  - Color-coded diagnosis (🟢 NORMAL or 🔴 ANOMALY DETECTED)
+  - Measured perturbation percentage
+  - Machine-defined tolerance
+- **Visualizations:** The 3 images displayed side-by-side
+  - Original image
+  - AI mapping (K-Means segmentation)
+  - Anomaly detection (Sobel filter)
+
+### Usage
+1. Upload an image
+2. Configure calibration if needed
+3. Click on the **"📥 Download PDF Report"** button
+4. The file is generated and automatically downloaded with a timestamp
+
+### Technologies
+- **Library:** `reportlab` (open-source)
+- **Format:** Standard PDF compatible with all readers
+
+---
+
+## 🏥 DICOM Medical Files Support (.dcm)
+
+### Description
+Direct reading of **raw medical imaging files** in DICOM format, commonly used by scanners (CT/MRI), X-rays, and digital electron microscopes.
+
+### DICOM Format
+- **Extension:** `.dcm`
+- **Bit Depth:** Usually 12 or 16 bits (vs 8 bits for JPG/PNG)
+- **Standardization:** International medical standard (DICOM = Digital Imaging and Communications in Medicine)
+
+### Usage
+1. Upload a `.dcm` file in the application
+2. The app automatically detects the format
+3. The raw pixel matrix is extracted and normalized (16-bit → 8-bit)
+4. The rest of the analysis works exactly like with JPG/PNG images
+
+### Technologies
+- **Library:** `pydicom` (open-source)
+- **Normalization:** Smart conversion of raw dynamic range down to 8 bits
+
+---
+
+## ✨ V2.0 Highlights
+
+| Feature | Before | After |
+|---|---|---|
+| **Input Format** | JPG, PNG only | JPG, PNG, **DICOM** |
+| **Export** | No export | **Professional PDF Report** |
+| **Image Depth** | 8 bits | 8 bits, **12/16 bits (DICOM)** |
+| **Use Case** | Lab Prototype | **True Medical Tool** |
+
+
 
 #### 👨‍🔬 Human Expertise
 
