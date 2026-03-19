@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 import streamlit as st
+import pydicom
 
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib import colors
@@ -230,12 +231,45 @@ def generer_rapport_pdf(image_originale, image_ia, image_resultat, densite, tole
 
 
 # --- INTERFACE ---
-fichier_upload = st.file_uploader("Insérez une image issue du microscope :", type=["png", "jpg", "jpeg"])
+fichier_upload = st.file_uploader("Insérez une image issue du microscope :", type=["png", "jpg", "jpeg", "dcm"])
 
 if fichier_upload is not None:
-    image_pil = Image.open(fichier_upload)
-    img_cv2 = np.array(image_pil)
-    
+    # --- LECTURE INTELLIGENTE DU FICHIER ---
+    if fichier_upload.name.lower().endswith('.dcm'):
+        # C'est un fichier médical DICOM
+        try:
+            dicom_data = pydicom.dcmread(fichier_upload)
+            pixels_bruts = dicom_data.pixel_array
+            
+            # Les DICOM sont souvent en 12 ou 16 bits (0-4095 ou 0-65535). 
+            # Notre IA a besoin d'images 8 bits (0-255). On normalise l'image :
+            pixels_bruts = pixels_bruts.astype(float)
+            pixels_bruts = (np.maximum(pixels_bruts, 0) / pixels_bruts.max()) * 255.0
+            pixels_8u = np.uint8(pixels_bruts)
+            
+            # Si le DICOM est en niveaux de gris (1 seul canal), on le convertit en BGR pour la compatibilité d'affichage
+            if len(pixels_8u.shape) == 2:
+                img_cv2 = cv2.cvtColor(pixels_8u, cv2.COLOR_GRAY2BGR)
+            else:
+                img_cv2 = pixels_8u
+                
+            # On recrée une version "PIL" pour l'affichage Streamlit et le PDF
+            image_pil = Image.fromarray(cv2.cvtColor(img_cv2, cv2.COLOR_BGR2RGB))
+            
+            st.info("🏥 Image médicale DICOM détectée et normalisée avec succès.")
+            
+        except Exception as e:
+            st.error(f"Erreur lors de la lecture du fichier DICOM : {str(e)}")
+            st.stop()
+            
+    else:
+        # C'est une image standard (JPG, PNG)
+        image_pil = Image.open(fichier_upload)
+        # Conversion PIL vers OpenCV (RGB vers BGR)
+        img_cv2 = cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2BGR)
+
+
+    # La suite reste strictement identique...
     vue_ia, masque_ia = segmenter_avec_ia(img_cv2)
     
     if st.button("🎯 Prendre cette image comme référence saine (Auto-Calibrer)"):
