@@ -213,13 +213,19 @@ Ce projet repose sur des bibliothèques standards et éprouvées de l'écosystè
 | ![Pillow](https://img.shields.io/badge/Pillow-3776AB?style=flat-square&logo=python&logoColor=white) | Traitement et conversion des images uploadées par l'utilisateur. |
 
 ---
+---
 
-## 🧠 Roadmap & Idées de Développement Futur
+## 👨‍💻 À propos de l'auteur
 
-Le projet est fonctionnel, mais plusieurs pistes d'amélioration sont envisageables pour une future **"Version 2.0"** :
+**BioMed AI Lab** a été pensé et développé avec passion par **Thierry Maesen**. 
+Ce projet est né de la volonté de combiner l'Intelligence Artificielle et la Computer Vision pour créer un outil d'assistance au diagnostic médical accessible à tous.
 
-- [ ] **Export PDF** — Création d'un bouton pour exporter un "Rapport d'analyse de laboratoire" complet en format PDF (incluant les 3 images et les pourcentages mesurés).
-- [ ] **Support Médical Standard** — Ajout de la bibliothèque `pydicom` pour permettre la lecture directe des fichiers d'imagerie médicale bruts au format `.dcm` (DICOM).
+* N'hésitez pas à explorer le code source sur mon profil GitHub.
+* Si ce projet vous plaît, vous pouvez lui laisser une ⭐️ en haut à droite de la page !
+
+<div align="center">
+  <sub><i>Créé par <a href="https://github.com/thierrymaesen">Thierry Maesen</a> — Mars 2026</i></sub>
+</div>
 
 ---
 
@@ -436,10 +442,18 @@ This project relies on standard and proven libraries from the Python ecosystem:
 | ![Pillow](https://img.shields.io/badge/Pillow-3776AB?style=flat-square&logo=python&logoColor=white) | Processing and conversion of user-uploaded images. |
 
 ---
+---
 
-## 🧠 Roadmap & Future Development Ideas
+## 👨‍💻 About the Author
 
-The project is functional, but several improvement paths are being considered for a future **"Version 2.0"**:
+**BioMed AI Lab** was designed and passionately developed by **Thierry Maesen**. 
+This project was born from the desire to combine Artificial Intelligence and Computer Vision to create a medical diagnostic assistance tool accessible to everyone.
 
-- [ ] **PDF Export** — Creation of a button to export a complete "Laboratory Analysis Report" in PDF format (including all 3 images and measured percentages).
-- [ ] **Medical Standard Support** — Addition of the `pydicom` library to enable direct reading of raw medical imaging files in `.dcm` (DICOM) format.
+* Feel free to explore the source code on my GitHub profile.
+* If you like this project, you can give it a ⭐️ at the top right of the page!
+
+<div align="center">
+  <sub><i>Created by <a href="https://github.com/thierrymaesen">Thierry Maesen</a> — March 2026</i></sub>
+</div>
+
+
