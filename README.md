@@ -19,6 +19,10 @@ Elle est conçue pour assister les technologues de laboratoire médical dans l'a
 
 [🇬🇧 English Version](#-biomed-ai-lab-1)
 
+### 🎬 Démonstration Vidéo / Video Demo
+
+[![Voir la démo vidéo / Watch the video demo](https://img.youtube.com/vi/mqxFfKSlcyo/maxresdefault.jpg)](https://www.youtube.com/watch?v=mqxFfKSlcyo)
+
 
 </div>
 
