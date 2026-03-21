@@ -24,6 +24,10 @@ Elle est conçue pour assister les technologues de laboratoire médical dans l'a
 [![Voir la démo vidéo / Watch the video demo](https://img.youtube.com/vi/mqxFfKSlcyo/maxresdefault.jpg)](https://www.youtube.com/watch?v=mqxFfKSlcyo)
 
 
+### 📸 Capture d'écran - Calibration & Analyse
+
+![Calibration Screenshot](calibration_screenshot.png)
+
 </div>
 
 ---
